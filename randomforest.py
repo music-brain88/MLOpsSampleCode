@@ -37,7 +37,8 @@ param_grid = {
 model_cv = GridSearchCV(
     estimator=RandomForestRegressor(
         random_state=2525,
-        verbose=True
+        verbose=True,
+        n_jobs=6
     ),
     param_grid=param_grid,
     cv=5,
