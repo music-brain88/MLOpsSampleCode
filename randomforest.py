@@ -4,12 +4,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.model_selection import cross_validate
 from sklearn.model_selection import GridSearchCV
 from sklearn.ensemble import RandomForestRegressor
-
+from sklearn.metrics import confusion_matrix
 
 import sklearn
 import numpy as np
 import pandas as pd
-
+from PIL import Image
+import logging
+import os
 # for trains
 import joblib
 from tqdm import tqdm
@@ -28,10 +30,10 @@ y = boston['target']  # 家賃
 model = RandomForestRegressor(n_jobs=1, random_state=2525)
 
 param_grid = {
-    "max_depth": list(range(1, 10)),
-    "n_estimators": list(range(1, 500, 50)),
+    "max_depth": list(range(1, 3)),
+    "n_estimators": list(range(1, 201, 50)),
 #    "bootstrap": [True, False],
-    "max_features": list(range(1, 10))
+    "max_features": list(range(1, 3))
 }
 
 model_cv = GridSearchCV(
@@ -50,20 +52,37 @@ print(model_cv)
 
 x_train, x_test, y_trian, y_test = sklearn.model_selection.train_test_split(x, y, test_size=0.5, random_state=1)
 
-tqdm(model_cv.fit(x_train, y_trian))
+model_cv.fit(x_train, y_trian)
 
 model_cv_best = model_cv.best_estimator_
 
 parameters_dict = Task.current_task().connect(model_cv.best_params_)
 print("Best Model Parameter: ", model_cv.best_params_)
 
-#result = cross_validate(model, x_train, y_trian, cv=5)
+# 予測を打ち込む
+y_pred = model_cv.best_estimator_.predict(x_test)
+#print(confusion_matrix(y_test, y_pred))
+
 
 joblib.dump(model_cv, 'model.pkl')
 loaded_model = joblib.load('model.pkl')
 
-# number_layers = 10
-# accuracy = model.score(x_test, y_test)
-# Task.current_task().get_logger().report_scatter2d(
-#     "performance", "accuracy", iteration=0, 
-#     mode='markers', scatter=[(number_layers, accuracy)])
+number_layers = 10
+
+print(model_cv.cv_results_.keys())
+
+print(model_cv.estimator)
+
+accuracy = model_cv_best.score(x_test, y_test)
+logger = Task.current_task().get_logger()
+logger.report_scatter2d(
+    "performance",
+    "accuracy",
+    iteration=0, 
+    mode='markers',
+    scatter=[
+        (number_layers,
+         accuracy
+         )
+    ]
+)
