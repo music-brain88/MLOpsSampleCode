@@ -30,10 +30,10 @@ y = boston['target']  # 家賃
 model = RandomForestRegressor(n_jobs=1, random_state=2525)
 
 param_grid = {
-    "max_depth": list(range(1, 10)),
-    "n_estimators": list(range(1, 1001, 50)),
+    "max_depth": list(range(8, 12)),
+    "n_estimators": list(range(1, 201, 50)),
     "bootstrap": [True, False],
-    "max_features": list(range(1, 10))
+    "max_features": list(range(5, 10))
 }
 
 model_cv = GridSearchCV(
