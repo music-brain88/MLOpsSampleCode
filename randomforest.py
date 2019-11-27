@@ -30,10 +30,10 @@ y = boston['target']  # 家賃
 model = RandomForestRegressor(n_jobs=1, random_state=2525)
 
 param_grid = {
-    "max_depth": list(range(1, 3)),
-    "n_estimators": list(range(1, 201, 50)),
-#    "bootstrap": [True, False],
-    "max_features": list(range(1, 3))
+    "max_depth": list(range(1, 10)),
+    "n_estimators": list(range(1, 1001, 50)),
+    "bootstrap": [True, False],
+    "max_features": list(range(1, 10))
 }
 
 model_cv = GridSearchCV(
@@ -61,19 +61,15 @@ print("Best Model Parameter: ", model_cv.best_params_)
 
 # 予測を打ち込む
 y_pred = model_cv.best_estimator_.predict(x_test)
-#print(confusion_matrix(y_test, y_pred))
+print(y_pred)
 
 
 joblib.dump(model_cv, 'model.pkl')
 loaded_model = joblib.load('model.pkl')
 
 number_layers = 10
-
-print(model_cv.cv_results_.keys())
-
-print(model_cv.estimator)
-
 accuracy = model_cv_best.score(x_test, y_test)
+
 logger = Task.current_task().get_logger()
 logger.report_scatter2d(
     "performance",
@@ -86,3 +82,15 @@ logger.report_scatter2d(
          )
     ]
 )
+
+keys = list(model_cv.cv_results_.keys())
+for i in range(len(keys)):
+    values = model_cv.cv_results_[keys[i]]
+    key = keys[i]
+    if isinstance(values[0], float):
+        logger.report_histogram(
+            key,
+            key,
+            iteration=0,
+            values=values
+        )
