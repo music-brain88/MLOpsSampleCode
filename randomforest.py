@@ -55,8 +55,10 @@ x_train, x_test, y_trian, y_test = sklearn.model_selection.train_test_split(x, y
 model_cv.fit(x_train, y_trian)
 
 model_cv_best = model_cv.best_estimator_
-
+gird_param = dict(cv=5, scoring='neg_mean_squared_error')
+print(gird_param)
 parameters_dict = Task.current_task().connect(model_cv.best_params_)
+Task.current_task().connect(gird_param)
 print("Best Model Parameter: ", model_cv.best_params_)
 
 # 予測を打ち込む
