@@ -1,3 +1,0 @@
-[submodule "trains-server"]
-	path = trains-server
-	url = git@github.com:allegroai/trains-server.git
